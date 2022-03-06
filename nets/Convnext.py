@@ -6,7 +6,11 @@ from timm.models.layers import trunc_normal_,DropPath
 from timm.models.registry import register_model
 from torchsummary import summary
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+#-----------------------------------------------------------------------#
+#    ConvNeXt 网络
+#    论文地址： https://arxiv.org/pdf/2201.03545.pdf
+#    我的博客 ：https://blog.csdn.net/qq_38676487/article/details/123298605
+#-------------------------------------------------------------------------#
 class Block(nn.Module):
     #-----------------------------------------------------------------------#
     # ConvNeXt Block 块 两种实现方式

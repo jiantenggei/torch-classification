@@ -16,7 +16,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def train():
     # 获得分类数
     class_names, num_classes = get_classes(classes_path)
-    # 定义模型
+    #---------------------------------------------------#
+    #  定义模型，可在nets 导入自己的模型去训练，
+    #  目前支持MLP-Mixer Conv-Mixer ConvNeXt系列模型
+    #  只有ConvNeXt 支持pretrain 官方提供的权重
+    #---------------------------------------------------#
     model = ConvMixer_768_32(n_classes=num_classes)
     #初始化
     if resume == '':

@@ -9,7 +9,8 @@ def get_lr(optimizer):
     for param_group in optimizer.param_groups:
         return param_group['lr']
 def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Epoch, cuda):
-    # 记录返回值
+    
+    # 记录日志啊
     tags = ["train_loss", "train_acc", "val_loss", "val_acc", "learning_rate"]
     train_loss      = 0
     train_accuracy  = 0

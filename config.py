@@ -3,9 +3,7 @@ Cuda             = False  #是否使用GPU 没有为Flase
 input_shape      = [224,224]  # 输入图片大小
 
 
-# backbone        = 'ConvMixer'  # 可选ConvMixer,MLP-Mixer
-
-batch_size      = 1 # 自己可以更改
+batch_size      = 2 # 自己可以更改
 lr              = 1e-3         
 
 classes_path    = 'classes.txt'
@@ -18,11 +16,9 @@ annotation_path     = 'cls_train.txt'
 
 
 
-val_split       = 0.1
+val_split       = 0.1  #验证集比率
 
 
-resume          =''
+resume          =''  # 加载训练权重路径
 
-log_dir         = 'logs'
-
-
+log_dir         = 'logs' # 日志路径 tensorboard 保存

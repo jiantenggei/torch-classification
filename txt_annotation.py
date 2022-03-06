@@ -4,7 +4,8 @@ from os import getcwd
 #---------------------------------------------------#
 #   训练自己的数据集的时候一定要注意修改classes
 #   修改成自己数据集所区分的种类
-#   种类顺序需要和训练时用到的model_data下的txt一样
+#   种类顺序需要和训练时用到的classes.txt一样
+#   生成cls_train.txt, cls_text.txt
 #---------------------------------------------------#
 classes = ["cats", "dogs"]
 sets    = ["train", "test"]
