@@ -67,7 +67,7 @@ def ConvMixer_768_32(n_classes = 1000):
 
 # 自定义的 ConvMixer 不传参 为 ConvMixer_768_32
 def custom_ConvMixer(dim=768,depth=32,patch_size=7,kernel_size=7,n_classes=1000):
-     return ConvMixer(dim=dim,depth=depth,pathch = patch_size,kernel_size=kernel_size,n_classes=n_classes)
+     return ConvMixer(dim=dim,depth=depth,patch_size = patch_size,kernel_size=kernel_size,n_classes=n_classes)
 
 if __name__ == '__main__':
     model =ConvMixer_1536_20().to(device)
