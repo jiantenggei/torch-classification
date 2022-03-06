@@ -79,7 +79,7 @@ resume          =''  # 加载训练权重路径
 log_dir         = 'logs' # 日志路径 tensorboard 保存
 ```
 
-在 Trian.py 中
+在 trian.py 中
 
 ```python
 #---------------------------------------------------#
@@ -114,6 +114,6 @@ tensorboard --logdir=logs\loss_2022_03_06_12_11_30
 
 ​		
 
-其他问题私信：1308659229@qq.com
+存在bug及其他问题私信：1308659229@qq.com
 
 **如果觉得有用清给我点star**
