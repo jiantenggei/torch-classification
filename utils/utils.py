@@ -1,10 +1,12 @@
 import imp
 from msilib import type_binary
+from statistics import mode
 import numpy as np
 import torch
 from PIL import Image
 import datetime
 import os
+import cv2
 from torch.utils.tensorboard import SummaryWriter
 #---------------------------------------------------#
 #   转化为RGB 格式
@@ -66,7 +68,44 @@ def create_tbWriter(log_dir:str):
 
     return tb_writer
 
+#---------------------------------------------------#
+#   加灰条的resize 防止图片是真
+#---------------------------------------------------#
+def letterbox_image(image, size):
+    iw, ih = image.size
+    h, w = size
+    scale = min(w/iw, h/ih)
+    nw = int(iw*scale)
+    nh = int(ih*scale)
+
+    image = image.resize((nw,nh), Image.BICUBIC)
+    new_image = Image.new('RGB', size, (128,128,128))
+    new_image.paste(image, ((w-nw)//2, (h-nh)//2))
+    return new_image
+    
+#---------------------------------------------------#
+#   加载权重
+#---------------------------------------------------#
+def load_dict(model_path,model):
+    print('Loading weights into state dict...')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model_dict = model.state_dict()
+    pretrained_dict = torch.load(model_path, map_location=device)
+    pretrained_dict = {k: v for k, v in pretrained_dict.items() if np.shape(model_dict[k]) ==  np.shape(v)}
+    model_dict.update(pretrained_dict)
+    model.load_state_dict(model_dict)
+    return model
 
 if __name__=='__main__':
     # 测试tb_writer
     t = create_tbWriter('logs')
+
+    # image = Image.open(r'C:\Users\Jian\Pictures\Camera Roll\\1.jpg')
+    # image = cvtColor(image)
+    # image = letterbox_image(image,(2224,2225))
+    # image = np.array(image)
+    # cv2.imshow('c',image)
+    # cv2.waitKey(0)
+
+
+    

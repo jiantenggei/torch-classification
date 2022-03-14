@@ -43,7 +43,7 @@ class eval_top:
         
         name = self.class_name[np.argmax(pred)]
 
-        
+        # 预测
         if mode == 'predict':
             probability = np.max(pred)
             #---------------------------------------------------#
@@ -54,10 +54,10 @@ class eval_top:
             plt.title('Class:%s Probability:%.3f' %(name, probability))
             plt.show()
             return name
-        #
+        #top1
         elif mode == 'top1':
             return np.argmax(pred)
-
+        ##top5
         elif mode == 'top5' :
             arg_pred = np.argsort(pred)[::-1]
             arg_pred_top5 = arg_pred[:5]

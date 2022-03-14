@@ -1,4 +1,4 @@
-Cuda             = False  #是否使用GPU 没有为Flase
+Cuda             = True  #是否使用GPU 没有为Flase
 
 input_shape      = [224,224]  # 输入图片大小
 
