@@ -100,14 +100,69 @@ tensorboard --logdir=logs\loss_2022_03_06_12_11_30
 
 # How2Eval
 
-实验室电脑被项目占用中。。。。。
+在eval.py 中:
 
-还未调试
+```python
+if __name__ == "__main__":
+
+    # 读取测试集路劲和标签
+    with open("./cls_test.txt","r") as f: 
+        lines = f.readlines()
+    #---------------------------------------------------#
+    #   权重和模型
+    #   注意：训练时设置的模型需要和权重匹配，
+    #   也就是训练的啥模型使用啥权重
+    #---------------------------------------------------#
+    model_path = '' #训练好的权重路径
+    model = ConvMixer_768_32(n_classes=2) # 自己训练好的模型
+
+    mode = load_dict(model_path,model) # 加载权重
+    eval = eval_top(anno_lines=lines,model=model)
+    #---------------------------------------------------#
+    #   top1 预测概率最好高的值与真实标签一致 √
+    #   top5 预测概率前五个值由一个与真实标签一致 √
+    #---------------------------------------------------#
+    print('start eval.....')
+    top1 = eval.eval_top1()
+    
+    top5 = eval.eval_top5()
+    print('top1:%.3f,top5:%3.f'%(top1,top5))
+    print('Eval Finished')
+
+```
+
+
+
 # How2Predict
 
-实验室电脑被项目占用中。。。。。
+predict.py 中，设置好模型和权重，控制台输入图片路径。
 
-还未调试
+```python
+#加载模型
+model_path = 'logs\ep050-loss0.414-val_loss0.376.pth'
+model = ConvMixer_768_32(n_classes=2)
+model = load_dict(model_path,model)
+eval = eval_top(anno_lines=None,model=model)
+
+while True:
+    img = input('Input image filename:')
+    try:
+        image = Image.open(img)
+    except:
+        print('Open Error! Try again!')
+        continue
+    else:
+        class_name = eval.detect_img(image,mode='predict')
+        print(class_name)
+
+```
+
+控制台：
+
+```bash
+Loading weights into state dict...
+Input image filename:d:\Classification\torch\datasets\test\cats\cat.4006.jpg 
+```
 
 
 ## 训练技巧和练丹
@@ -117,5 +172,11 @@ tensorboard --logdir=logs\loss_2022_03_06_12_11_30
 ​		
 
 存在bug及其他问题私信：1308659229@qq.com
+
+# 其他
+
+该仓库可能存在bug，希望大家在使用过程中能及时反馈，或者留下一些代码修改意见。我们一起让它变得更好。
+
+
 
 **如果觉得有用清给我点star**

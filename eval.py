@@ -104,11 +104,11 @@ if __name__ == "__main__":
     #   注意：训练时设置的模型需要和权重匹配，
     #   也就是训练的啥模型使用啥权重
     #---------------------------------------------------#
-    model_path = ''
+    model_path = 'logs\ep050-loss0.414-val_loss0.376.pth' #训练好的权重路径
     model = ConvMixer_768_32(n_classes=2)
 
-    mode = load_dict(model_path,model)
-    eval = eval_top(anno_lines=lines[:10],model=model)
+    model = load_dict(model_path,model)
+    eval = eval_top(anno_lines=lines,model=model)
     #---------------------------------------------------#
     #   top1 预测概率最好高的值与真实标签一致 √
     #   top5 预测概率前五个值由一个与真实标签一致 √
