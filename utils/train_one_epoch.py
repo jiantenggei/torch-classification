@@ -8,6 +8,7 @@ from tqdm import tqdm
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
         return param_group['lr']
+
 def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Epoch, cuda):
     
     # 记录日志啊
@@ -87,4 +88,4 @@ def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, e
     print('Finish Validation')
     print('Epoch:' + str(epoch + 1) + '/' + str(Epoch))
     print('Total Loss: %.3f || Val Loss: %.3f ' % (train_loss / epoch_step, val_loss / epoch_step_val))
-    torch.save(model.state_dict(), 'logs/ep%03d-loss%.3f-val_loss%.3f.pth'%((epoch + 1), train_loss / epoch_step, val_loss / epoch_step_val))
+    torch.save(model_train.state_dict(), 'logs/ep%03d-loss%.3f-val_loss%.3f.pth'%((epoch + 1), train_loss / epoch_step, val_loss / epoch_step_val))
