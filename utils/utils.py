@@ -1,5 +1,3 @@
-import imp
-from msilib import type_binary
 from statistics import mode
 import numpy as np
 import torch
@@ -87,6 +85,9 @@ def letterbox_image(image, size):
 #   加载权重
 #---------------------------------------------------#
 def load_dict(model_path,model):
+    #异常
+    if model_path == "":
+            raise ValueError("请设置模型权重路径！")
     print('Loading weights into state dict...')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model_dict = model.state_dict()

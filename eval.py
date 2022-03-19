@@ -6,7 +6,7 @@ from config import input_shape,Cuda,classes_path # 来源于config.py 中的Cuda
 import numpy as np
 from PIL import Image
 from nets.ConvMixer import ConvMixer_768_32
-
+from tqdm import tqdm
 class eval_top:
     
     def __init__(self,anno_lines,model) -> None:
@@ -67,15 +67,18 @@ class eval_top:
     #   eval_top1
     #---------------------------------------------------#
     def eval_top1(self):
+        print('Eval Top1....')
         correct = 0
         total = len(self.anno_lines)
-        for idx,line in enumerate(self.anno_lines):
-            annotation_path = line.split(';')[1].split()[0]
-            x = Image.open(annotation_path)
-            y = int(line.split(';')[0])
+        with tqdm(total=total,postfix=dict,mininterval=0.3) as pbar:
+            for idx,line in enumerate(self.anno_lines):
+                annotation_path = line.split(';')[1].split()[0]
+                x = Image.open(annotation_path)
+                y = int(line.split(';')[0])
 
-            pred = self.detect_img(x,mode='top1')
-            correct += pred == y
+                pred = self.detect_img(x,mode='top1')
+                correct += pred == y
+                pbar.update(1)
         return correct / total
 
     #---------------------------------------------------#
@@ -84,13 +87,16 @@ class eval_top:
     def eval_top5(self):
         correct = 0
         total = len(self.anno_lines)
-        for idx,line in enumerate(self.anno_lines):
-            annotation_path = line.split(';')[1].split()[0]
-            x = Image.open(annotation_path)
-            y = int(line.split(';')[0])
+        print('Eval Top5....')
+        with tqdm(total=total,postfix=dict,mininterval=0.3) as pbar:
+            for idx,line in enumerate(self.anno_lines):
+                annotation_path = line.split(';')[1].split()[0]
+                x = Image.open(annotation_path)
+                y = int(line.split(';')[0])
 
-            pred = self.detect_img(x,'top5')
-            correct += y in pred
+                pred = self.detect_img(x,'top5')
+                correct += y in pred
+                pbar.update(1)
         return correct / total    
     
 
@@ -108,7 +114,7 @@ if __name__ == "__main__":
     model = ConvMixer_768_32(n_classes=2)
 
     model = load_dict(model_path,model)
-    eval = eval_top(anno_lines=lines,model=model)
+    eval = eval_top(anno_lines=lines[:10],model=model)
     #---------------------------------------------------#
     #   top1 预测概率最好高的值与真实标签一致 √
     #   top5 预测概率前五个值由一个与真实标签一致 √
