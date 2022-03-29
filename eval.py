@@ -82,7 +82,7 @@ class eval_top:
         return correct / total
 
     #---------------------------------------------------#
-    #   eval_top5
+    #   eval_top5 更新进度条
     #---------------------------------------------------#
     def eval_top5(self):
         correct = 0
