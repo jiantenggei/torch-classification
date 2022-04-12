@@ -1,17 +1,19 @@
+from cProfile import label
 import numpy as np
 from config import *
 import torch.backends.cudnn as cudnn
 from utils.train_one_epoch import fit_one_epoch
 from utils.dataloader import DataGenerator,detection_collate
 from utils.utils import get_classes,weights_init,create_tbWriter
-from nets.ConvMixer import ConvMixer, ConvMixer_768_32
+from nets.ConvMixer import ConvMixer, ConvMixer_768_32,custom_ConvMixer
 from nets.MlpMixer import MLPMixer
 import torch
+from torch import nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import os
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+from utils.training_utils import cross_entropy,smooth_one_hot
 
 def train():
     # 获得分类数
@@ -21,10 +23,13 @@ def train():
     #  目前支持MLP-Mixer Conv-Mixer ConvNeXt系列模型
     #  只有ConvNeXt 支持pretrain 官方提供的权重
     #---------------------------------------------------#
-    model = ConvMixer_768_32(n_classes=num_classes)
+    model = custom_ConvMixer(dim=128,depth=12,patch_size=7,kernel_size=7,n_classes=num_classes)
     #初始化
     if resume == '':
-        weights_init(model)
+        #---------------------------------------------------#
+        # 初始模型的方式： str: normal xavier kaiming orthogonal
+        #---------------------------------------------------#
+        weights_init(model,init_type='normal')
     
     else:
         #载入训练过的权重
@@ -46,7 +51,11 @@ def train():
         model_train = model_train.cuda()
     
     tb_writer = create_tbWriter(log_dir=log_dir)
-
+    # 设置loss 
+    if label_smoothing:
+        criterion = cross_entropy
+    else:
+        criterion = nn.CrossEntropyLoss()
     with open(annotation_path, "r") as f:
         lines = f.readlines()
     np.random.seed(10101)
@@ -78,7 +87,7 @@ def train():
                                 drop_last=True, collate_fn=detection_collate)
 
     for epoch in range(Init_Epoch,Freeze_Epoch):
-            fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Freeze_Epoch, Cuda)
+            fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Freeze_Epoch, Cuda,criterion)
             lr_scheduler.step()
 
 

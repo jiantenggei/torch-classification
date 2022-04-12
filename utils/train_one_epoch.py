@@ -1,23 +1,30 @@
+import imp
 import torch
 import torch.nn.functional as F
 from torch import nn
 from tqdm import tqdm
+from losses.focal_loss import FocalLoss
+from config import label_smoothing
+from utils.training_utils import smooth_one_hot
+from utils.utils import get_classes
+from config import classes_path,smoothing_value
 #---------------------------------------------------#
 #   获得学习率
 #---------------------------------------------------#
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
         return param_group['lr']
-
-def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Epoch, cuda):
+#nn.BCEWithLogitsLoss是对网络的输出进行Sigmoid(); 交叉熵则是采用的Softmax
+def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Epoch, cuda,criterion):
     
     # 记录日志啊
+
     tags = ["train_loss", "train_acc", "val_loss", "val_acc", "learning_rate"]
     train_loss      = 0
     train_accuracy  = 0
     val_accuracy     = 0
     val_loss        = 0
-
+    _,classes = get_classes(classes_path)
 
 
     model_train.train()
@@ -33,10 +40,12 @@ def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, e
                 if cuda:
                     images  = images.cuda()
                     targets = targets.cuda()
-
+            # label_smmothing
+            if label_smoothing:
+                targets = smooth_one_hot(targets,classes=classes,smoothing=smoothing_value)
             optimizer.zero_grad()
             outputs     = model_train(images)
-            loss_value  = nn.CrossEntropyLoss()(outputs, targets)
+            loss_value = criterion(outputs,targets)
             loss_value.backward()
             optimizer.step()
 
@@ -69,8 +78,8 @@ def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, e
                 optimizer.zero_grad()
 
                 outputs     = model_train(images)
-                loss_value  = nn.CrossEntropyLoss()(outputs, targets)
-                
+                loss_value = criterion(outputs,targets)
+                    
                 val_loss    += loss_value.item()
                 # 验证集准确率
                 accuracy = torch.mean((torch.argmax(F.softmax(outputs, dim=-1), dim=-1) == targets).type(torch.FloatTensor))
@@ -89,3 +98,6 @@ def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, e
     print('Epoch:' + str(epoch + 1) + '/' + str(Epoch))
     print('Total Loss: %.3f || Val Loss: %.3f ' % (train_loss / epoch_step, val_loss / epoch_step_val))
     torch.save(model_train.state_dict(), 'logs/ep%03d-loss%.3f-val_loss%.3f.pth'%((epoch + 1), train_loss / epoch_step, val_loss / epoch_step_val))
+
+    #学习率 衰减
+    
