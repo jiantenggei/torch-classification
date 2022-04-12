@@ -167,9 +167,9 @@ Input image filename:d:\Classification\torch\datasets\test\cats\cat.4006.jpg
 
 ## 训练技巧和练丹
 
-​		losses: Focl_loss(样本不均衡策略)
++ [ ] Focl_loss(样本不均衡策略)
 
-​		
++ [x] label_smoothing (训练样本偏少时，防止过拟合策略)
 
 存在bug及其他问题私信：1308659229@qq.com
 
