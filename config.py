@@ -41,4 +41,4 @@ smoothing_value = 0.1  #[0，1] 之间
 
 
 #学习率变化策略
-scheduler   = '' #[None,reduce,cos] None保持不变 reduce  按epoch 来减少 cos 余弦下降算法
+scheduler   = 'cos' #[None,reduce,cos] None保持不变 reduce  按epoch 来减少 cos 余弦下降算法

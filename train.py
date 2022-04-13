@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader
 import os
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from utils.training_utils import cross_entropy,smooth_one_hot
+import config
 
 def train():
     # 获得分类数
@@ -49,7 +50,8 @@ def train():
         model_train = torch.nn.DataParallel(model)
         cudnn.benchmark = True
         model_train = model_train.cuda()
-    
+    #这里我将创建一个文件下 将所有的配置参数都记录下来
+    #hyperparameters = 
     tb_writer = create_tbWriter(log_dir=log_dir)
     # 设置loss 
     if label_smoothing:
@@ -65,20 +67,26 @@ def train():
     num_train   = len(lines) - num_val
 
     #配置训练参数
-    lr              = 1e-3
-    Batch_size      = 32
+    lr              = config.lr
+    Batch_size      = config.batch_size
     Init_Epoch      = 0
-    Freeze_Epoch    = 50
+    End_Epoch    = 50
 
     epoch_step      = num_train // Batch_size
     epoch_step_val  = num_val // Batch_size
 
     if epoch_step == 0 or epoch_step_val == 0:
             raise ValueError("数据集过小，无法进行训练，请扩充数据集。")
-        
+    
     optimizer       = optim.Adam(model_train.parameters(), lr, weight_decay = 5e-4)
-    lr_scheduler    = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.94)
 
+    if  config.scheduler== 'reduce':
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,mode='max',factor=0.95,verbose=True)
+
+    if config.scheduler == 'cos':
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer,T_max=End_Epoch)
+  
+   
     train_dataset   = DataGenerator(lines[:num_train], input_shape, True)
     val_dataset     = DataGenerator(lines[num_train:], input_shape, False)
     gen             = DataLoader(train_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
@@ -86,14 +94,16 @@ def train():
     gen_val         = DataLoader(val_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
 
-    for epoch in range(Init_Epoch,Freeze_Epoch):
-            fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Freeze_Epoch, Cuda,criterion)
-            lr_scheduler.step()
+    for epoch in range(Init_Epoch,End_Epoch):
+        train_loss,train_accuracy,val_loss,val_accuracy=fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, End_Epoch, Cuda,criterion)
+               #学习率 衰减
+        if config.scheduler == 'reduce':
+            scheduler.step(val_accuracy)
 
-
-
-
-
+        if config.scheduler == 'cos':
+            scheduler.step()
+        
+            
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ def get_classes(classes_path):
     return class_names, len(class_names)
 
 #---------------------------------------------------#
-#   初始化权重
+#   初始化权重 
 #---------------------------------------------------#
 def weights_init(net, init_type='normal', init_gain=0.02):
     def init_func(m):
@@ -96,6 +96,10 @@ def load_dict(model_path,model):
     model_dict.update(pretrained_dict)
     model.load_state_dict(model_dict)
     return model
+
+def get_config()->str:
+    
+    s = ''
 
 if __name__=='__main__':
     # 测试tb_writer

@@ -8,6 +8,7 @@ from config import label_smoothing
 from utils.training_utils import smooth_one_hot
 from utils.utils import get_classes
 from config import classes_path,smoothing_value
+import config
 #---------------------------------------------------#
 #   获得学习率
 #---------------------------------------------------#
@@ -94,10 +95,15 @@ def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, e
     tb_writer.add_scalar(tags[2], val_loss, epoch)
     tb_writer.add_scalar(tags[3], val_accuracy, epoch)
     tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
+
     print('Finish Validation')
     print('Epoch:' + str(epoch + 1) + '/' + str(Epoch))
     print('Total Loss: %.3f || Val Loss: %.3f ' % (train_loss / epoch_step, val_loss / epoch_step_val))
     torch.save(model_train.state_dict(), 'logs/ep%03d-loss%.3f-val_loss%.3f.pth'%((epoch + 1), train_loss / epoch_step, val_loss / epoch_step_val))
 
-    #学习率 衰减
+    return train_loss,train_accuracy,val_loss,val_accuracy
+ 
+
+
+
     
