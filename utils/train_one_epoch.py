@@ -90,18 +90,18 @@ def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, e
                                 'lr'        : get_lr(optimizer)})
             pbar.update(1)
                 
-    tb_writer.add_scalar(tags[0], train_loss, epoch)
-    tb_writer.add_scalar(tags[1], train_accuracy, epoch)
-    tb_writer.add_scalar(tags[2], val_loss, epoch)
-    tb_writer.add_scalar(tags[3], val_accuracy, epoch)
+    tb_writer.add_scalar(tags[0], train_loss/epoch_step, epoch)
+    tb_writer.add_scalar(tags[1], train_accuracy/epoch_step, epoch)
+    tb_writer.add_scalar(tags[2], val_loss/epoch_step_val, epoch)
+    tb_writer.add_scalar(tags[3], val_accuracy/epoch_step_val, epoch)
     tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
 
     print('Finish Validation')
     print('Epoch:' + str(epoch + 1) + '/' + str(Epoch))
     print('Total Loss: %.3f || Val Loss: %.3f ' % (train_loss / epoch_step, val_loss / epoch_step_val))
-    torch.save(model_train.state_dict(), 'logs/ep%03d-loss%.3f-val_loss%.3f.pth'%((epoch + 1), train_loss / epoch_step, val_loss / epoch_step_val))
+    torch.save(model.state_dict(), 'logs/ep%03d-loss%.3f-val_loss%.3f.pth'%((epoch + 1), train_loss / epoch_step, val_loss / epoch_step_val))
 
-    return train_loss,train_accuracy,val_loss,val_accuracy
+    return train_loss/epoch_step,train_accuracy/epoch_step,val_loss/epoch_step_val,val_accuracy/epoch_step_val
  
 
 
