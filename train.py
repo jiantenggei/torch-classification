@@ -5,8 +5,8 @@ import torch.backends.cudnn as cudnn
 from utils.train_one_epoch import fit_one_epoch
 from utils.dataloader import DataGenerator,detection_collate
 from utils.utils import get_classes,weights_init,create_tbWriter
-from nets.ConvMixer import ConvMixer, ConvMixer_768_32,custom_ConvMixer
-from nets.MlpMixer import MLPMixer
+from nets.resnet import ResNet18
+from nets.ConvMixer import ConvMixer_768_32
 import torch
 from torch import nn
 import torch.optim as optim
@@ -15,6 +15,7 @@ import os
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from utils.training_utils import cross_entropy,smooth_one_hot
 import config
+import torch.utils.model_zoo as model_zoo
 
 def train():
     # 获得分类数
@@ -24,7 +25,7 @@ def train():
     #  目前支持MLP-Mixer Conv-Mixer ConvNeXt系列模型
     #  只有ConvNeXt 支持pretrain 官方提供的权重
     #---------------------------------------------------#
-    model = custom_ConvMixer(dim=128,depth=12,patch_size=7,kernel_size=7,n_classes=num_classes)
+    model = ConvMixer_768_32(n_classes=num_classes)
     #初始化
     if resume == '':
         #---------------------------------------------------#
@@ -55,16 +56,22 @@ def train():
     tb_writer = create_tbWriter(log_dir=log_dir)
     # 设置loss 
     if label_smoothing:
-        criterion = cross_entropy
+        criterion = nn.CrossEntropyLoss(label_smoothing=smoothing_value)
     else:
         criterion = nn.CrossEntropyLoss()
-    with open(annotation_path, "r") as f:
+    #读取 train
+    with open(train_annotation_path, "r") as f:
         lines = f.readlines()
+    
     np.random.seed(10101)
     np.random.shuffle(lines)
     np.random.seed(None)
-    num_val     = int(len(lines) * val_split)
-    num_train   = len(lines) - num_val
+
+    with open(val_annotation_path,'r') as f:
+        val_lines = f.readlines()
+    # num_val     = int(len(lines) * val_split)
+    num_val = len(val_lines)
+    num_train   = len(lines)
 
     #配置训练参数
     lr              = config.lr
@@ -87,8 +94,8 @@ def train():
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer,T_max=End_Epoch)
   
    
-    train_dataset   = DataGenerator(lines[:num_train], input_shape, True)
-    val_dataset     = DataGenerator(lines[num_train:], input_shape, False)
+    train_dataset   = DataGenerator(lines, input_shape, True,is_grayscale=is_grayscale)
+    val_dataset     = DataGenerator(val_lines, input_shape, False,is_grayscale=is_grayscale)
     gen             = DataLoader(train_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
     gen_val         = DataLoader(val_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,

@@ -1,8 +1,8 @@
 Cuda             = True  #是否使用GPU 没有为Flase
 
-input_shape      = [112,112]  # 输入图片大小
-
-batch_size      = 4 # 自己可以更改
+input_shape      = [48,48]  # 输入图片大小
+is_grayscale     = False 
+batch_size      = 2 # 自己可以更改
 lr              = 1e-3         
 
 classes_path    = 'classes.txt'
@@ -11,11 +11,11 @@ classes_path    = 'classes.txt'
 num_workers     = 0  # 是否开启多进程
 
 
-annotation_path     = 'cls_train.txt'  
+train_annotation_path     = 'cls_train.txt'  
+
+val_annotation_path     = 'cls_test.txt'
 
 
-
-val_split       = 0.1  #验证集比率
 
 
 resume          =''  # 加载训练权重路径
@@ -34,7 +34,7 @@ log_dir         = 'logs' # 日志路径 tensorboard 保存
 #Focal_loss      = True  # True Focal loss 处理原本不均衡 False  使用 CrossEntropyLoss() # 还未使用成功
 
 #label_smoothing 防止过拟合
-label_smoothing =  False #
+label_smoothing =  True #
 
 smoothing_value = 0.1  #[0，1] 之间
 
@@ -42,3 +42,5 @@ smoothing_value = 0.1  #[0，1] 之间
 
 #学习率变化策略
 scheduler   = 'cos' #[None,reduce,cos] None保持不变 reduce  按epoch 来减少 cos 余弦下降算法
+
+

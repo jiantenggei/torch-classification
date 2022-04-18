@@ -41,9 +41,6 @@ def fit_one_epoch(model_train, model, tb_writer, optimizer, epoch, epoch_step, e
                 if cuda:
                     images  = images.cuda()
                     targets = targets.cuda()
-            # label_smmothing
-            if label_smoothing:
-                targets = smooth_one_hot(targets,classes=classes,smoothing=smoothing_value)
             optimizer.zero_grad()
             outputs     = model_train(images)
             loss_value = criterion(outputs,targets)

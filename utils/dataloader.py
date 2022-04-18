@@ -9,11 +9,12 @@ from .utils import cvtColor
 
 class DataGenerator(data.Dataset):
 
-    def __init__(self,annotation_lines, input_shape, random=True):
+    def __init__(self,annotation_lines, input_shape, random=True,is_grayscale=False):
         super().__init__()
         self.annotation_lines = annotation_lines
         self.input_shape = input_shape
         self.random = random
+        self.is_grayscale = is_grayscale
     
     def __len__(self):
         return len(self.annotation_lines)
@@ -22,9 +23,14 @@ class DataGenerator(data.Dataset):
         annotation_path = self.annotation_lines[index].split(';')[1].split()[0]
         image = Image.open(annotation_path)
         image = self.get_random_data(image, self.input_shape, random=self.random)
+        #如果是是读取图，读取之后需要做一个转换
+        if self.is_grayscale:
+               image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
+               #[w,h] - > [w,h,1]
+               image = np.expand_dims(image,-1)
         #归一化处理吧通道提前[w,h,c] - > [c,w,h]
+        #print(np.array(image).shape)
         image = np.transpose(self.preprocess_input(np.array(image).astype(np.float32)), [2, 0, 1])
-
         y = int(self.annotation_lines[index].split(';')[0])
         return image, y
     def rand(self, a=0, b=1):
