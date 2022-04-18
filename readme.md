@@ -53,11 +53,10 @@ sets    = ["train", "test"]
 ​	在config 中配置训练参数：
 
 ```python
-Cuda             = False  #是否使用GPU 没有为Flase
+Cuda             = True  #是否使用GPU 没有为Flase
 
-input_shape      = [224,224]  # 输入图片大小
-
-
+input_shape      = [48,48]  # 输入图片大小
+is_grayscale     = False #灰度图训练为True 非灰度图为False
 batch_size      = 2 # 自己可以更改
 lr              = 1e-3         
 
@@ -67,16 +66,40 @@ classes_path    = 'classes.txt'
 num_workers     = 0  # 是否开启多进程
 
 
-annotation_path     = 'cls_train.txt'  
+train_annotation_path     = 'cls_train.txt'  # 训练集用于训练
+
+val_annotation_path     = 'cls_test.txt'    # 测试集合用于每个epoch 训练完测试。保证训练属于充分
 
 
-
-val_split       = 0.1  #验证集比率
 
 
 resume          =''  # 加载训练权重路径
 
 log_dir         = 'logs' # 日志路径 tensorboard 保存
+
+#------------------------------------------#
+#   FocalLoss ：处理样本不均衡
+#   alpha   
+#   gamma >0 当 gamma=0 时就是交叉熵损失函数
+#   论文中gamma = [0,0.5,1,2,5]
+#   一般而言当γ增加的时候，a需要减小一点
+#   reduction ： 就平均：'mean' 求和 'sum'
+#   还未ti
+#------------------------------------------#
+#Focal_loss      = True  # True Focal loss 处理原本不均衡 False  使用 CrossEntropyLoss() # 还未使用成功
+
+#label_smoothing 防止过拟合
+label_smoothing =  True #
+
+smoothing_value = 0.1  #[0，1] 之间
+
+
+
+#学习率变化策略
+scheduler   = 'cos' #[None,reduce,cos] None保持不变 reduce  按epoch 来减少 cos 余弦下降算法
+
+
+
 ```
 
 在 trian.py 中
