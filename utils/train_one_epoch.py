@@ -3,11 +3,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from tqdm import tqdm
-from losses.focal_loss import FocalLoss
-from config import label_smoothing
-from utils.training_utils import smooth_one_hot
 from utils.utils import get_classes
-from config import classes_path,smoothing_value
+from config import classes_path
 import config
 #---------------------------------------------------#
 #   获得学习率

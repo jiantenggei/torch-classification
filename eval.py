@@ -114,7 +114,7 @@ if __name__ == "__main__":
     model = ConvMixer_768_32(n_classes=2)
 
     model = load_dict(model_path,model)
-    eval = eval_top(anno_lines=lines[:10],model=model)
+    eval = eval_top(anno_lines=lines,model=model)
     #---------------------------------------------------#
     #   top1 预测概率最好高的值与真实标签一致 √
     #   top5 预测概率前五个值由一个与真实标签一致 √
