@@ -52,8 +52,11 @@ def train():
         cudnn.benchmark = True
         model_train = model_train.cuda()
     #这里我将创建一个文件下 将所有的配置参数都记录下来
-    #hyperparameters = 
-    tb_writer = create_tbWriter(log_dir=log_dir)
+    hyperparameters = 'shape_'+str(config.input_shape)+'_batch_size_'+ str(config.batch_size)+'_lr_'+str(config.lr)+'_isgary_'\
+                        +str(config.is_grayscale)+'_lrscheduler_'+str(config.scheduler)+'_labelsmooth_' + str(config.label_smoothing)+str(config.smoothing_value)
+
+    
+    tb_writer = create_tbWriter(log_dir=log_dir,hyperparameters=hyperparameters)
     # 设置loss 
     if label_smoothing:
         criterion = nn.CrossEntropyLoss(label_smoothing=smoothing_value)

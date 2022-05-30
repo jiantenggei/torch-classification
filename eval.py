@@ -45,7 +45,7 @@ def evaluate(model, data_loader, epoch):
 if __name__ == "__main__":
     from torch.utils.data import DataLoader
     # 读取测试集路劲和标签
-    with open("./cls_val.txt","r") as f: 
+    with open("./cls_test.txt","r") as f: 
         lines = f.readlines()
     #---------------------------------------------------#
     #   权重和模型
@@ -59,9 +59,9 @@ if __name__ == "__main__":
     model = load_dict(model_path,model)
     
     
-    val_dataset     = DataGenerator(lines, input_shape, False,is_grayscale=True)
+    dataset     = DataGenerator(lines, input_shape, False,is_grayscale=True)
     
-    gen_val         = DataLoader(val_dataset, batch_size=128, num_workers=0, pin_memory=True,
+    gen_val         = DataLoader(dataset, batch_size=128, num_workers=0, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
 
     print(evaluate(model=model,data_loader=gen_val,epoch=0))
