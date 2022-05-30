@@ -51,14 +51,11 @@ def weights_init(net, init_type='normal', init_gain=0.02):
 
 
 #---------------------------------------------------#
-#   创建一个文件下，以当前日期为文件名 记录logs
+#   创建一个文件下，以超参数文件名 记录logs
 #---------------------------------------------------#
-def create_tbWriter(log_dir:str):
-
-    curr_time = datetime.datetime.now()
-    time_str = datetime.datetime.strftime(curr_time,'%Y_%m_%d_%H_%M_%S')
-
-    save_path  = os.path.join(log_dir, "loss_" + str(time_str))
+def create_tbWriter(log_dir:str,hyperparameters:str):
+    
+    save_path  = os.path.join(log_dir, "loss_" + str(hyperparameters))
 
     os.makedirs(save_path)
 
