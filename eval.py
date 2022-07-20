@@ -42,6 +42,98 @@ def evaluate(model, data_loader, epoch):
         )
 
     return accu_loss.item() / (step + 1), accu_num.item() / sample_num
+
+class eval_top:
+    
+    def __init__(self,anno_lines,model) -> None:
+
+        self.anno_lines = anno_lines
+        self.model = model
+        self.class_name,_ = get_classes(classes_path)
+    
+    def detect_img(self,image,mode='predict'):
+
+        #  image -> RGB
+        image = cvtColor(image)
+
+        image_data = letterbox_image(image,input_shape)
+
+        # 归一化
+        image_data = np.array(image_data, np.float32)
+        image_data = image_data/127.5
+        image_data -= 1.0
+
+        
+        # 添加bacth_size 维度
+        image_data = np.expand_dims(image_data,0)
+        #[batch_size,width,height,channel] -> [batch_size,channel,width,height]
+        image_data = np.transpose(image_data,(0, 3, 1, 2))
+
+        with torch.no_grad():
+            img = torch.from_numpy(image_data)
+            if Cuda:
+                img = img.cuda()
+                self.model.cuda()
+            
+            pred = torch.softmax(self.model(img)[0],dim=-1).cpu().numpy()
+        
+        name = self.class_name[np.argmax(pred)]
+
+        # 预测
+        if mode == 'predict':
+            probability = np.max(pred)
+            #---------------------------------------------------#
+            #   绘图并写字
+            #---------------------------------------------------#
+            plt.subplot(1, 1, 1)
+            plt.imshow(np.array(image))
+            plt.title('Class:%s Probability:%.3f' %(name, probability))
+            plt.show()
+            return name
+        #top1
+        elif mode == 'top1':
+            return np.argmax(pred)
+        ##top5
+        elif mode == 'top5' :
+            arg_pred = np.argsort(pred)[::-1]
+            arg_pred_top5 = arg_pred[:5]
+            return arg_pred_top5
+
+    #---------------------------------------------------#
+    #   eval_top1
+    #---------------------------------------------------#
+    def eval_top1(self):
+        print('Eval Top1....')
+        correct = 0
+        total = len(self.anno_lines)
+        with tqdm(total=total,postfix=dict,mininterval=0.3) as pbar:
+            for idx,line in enumerate(self.anno_lines):
+                annotation_path = line.split(';')[1].split()[0]
+                x = Image.open(annotation_path)
+                y = int(line.split(';')[0])
+
+                pred = self.detect_img(x,mode='top1')
+                correct += pred == y
+                pbar.update(1)
+        return correct / total
+
+    #---------------------------------------------------#
+    #   eval_top5 更新进度条
+    #---------------------------------------------------#
+    def eval_top5(self):
+        correct = 0
+        total = len(self.anno_lines)
+        print('Eval Top5....')
+        with tqdm(total=total,postfix=dict,mininterval=0.3) as pbar:
+            for idx,line in enumerate(self.anno_lines):
+                annotation_path = line.split(';')[1].split()[0]
+                x = Image.open(annotation_path)
+                y = int(line.split(';')[0])
+
+                pred = self.detect_img(x,'top5')
+                correct += y in pred
+                pbar.update(1)
+        return correct / total    
 if __name__ == "__main__":
     from torch.utils.data import DataLoader
     # 读取测试集路劲和标签
